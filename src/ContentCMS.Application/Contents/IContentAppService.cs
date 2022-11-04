@@ -10,7 +10,7 @@ namespace ContentCMS.Contents
     {
         Task<ContentDetailDto> GetCMSContent(int id);
         Task<ListResultDto<ContentDetailDto>> GetAll();
-        Task<ContentDetailDto> InsertOrUpdateCMSContent(CreateContentInput input);
+        Task<ContentDetailDto> InsertOrUpdateCMSContent(UpsertContentInput input);
     }
 }
 

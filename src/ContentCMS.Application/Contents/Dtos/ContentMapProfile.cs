@@ -9,7 +9,7 @@ namespace ContentCMS.Contents.Dtos
         public ContentMapProfile()
         {
             CreateMap<Content, ContentDetailDto>();
-            CreateMap<CreateContentInput, Content>();
+            CreateMap<UpsertContentInput, Content>();
         }
     }
 }

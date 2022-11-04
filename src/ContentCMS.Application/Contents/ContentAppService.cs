@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using ContentCMS.Contents.Dtos;
 using Abp.UI;
+using Abp.Runtime.Session;
 
 namespace ContentCMS.Contents
 {
@@ -28,24 +29,24 @@ namespace ContentCMS.Contents
             return ObjectMapper.Map<ContentDetailDto>(content);
         }
 
-        public async Task<ContentDetailDto> InsertOrUpdateCMSContent(CreateContentInput input)
+        public async Task<ContentDetailDto> InsertOrUpdateCMSContent(UpsertContentInput input)
         {
 
-            var existingEntity = await _eventManager.GetAsync(input.Id);
+            var existingEntity = await _eventManager.ContentExistsAsync(input.Id);
 
-            var content = existingEntity != null
-                ? ObjectMapper.Map(input, existingEntity)
-                : ObjectMapper.Map<Content>(input);
+            var content = !existingEntity
+                ? Content.Create(input.PageName, input.PageContent)
+                : Content.Update(input.Id, input.PageName, input.PageContent);
 
-            if (existingEntity == null)
+            if (!existingEntity)
             {
                 var newId = await _eventManager.CreateAsync(content);
                 content.SetId(newId);
+
+                return ObjectMapper.Map<ContentDetailDto>(content);
             }
-            else
-            {
-                await _eventManager.UpdateAsync(content);
-            }
+
+            await _eventManager.UpdateAsync(content);
 
             return ObjectMapper.Map<ContentDetailDto>(content);
         }

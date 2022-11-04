@@ -10,5 +10,6 @@ namespace ContentCMS.Contents
         Task<IList<Content>> GetAllAsync();
         Task<int> CreateAsync(Content content);
         Task UpdateAsync(Content content);
+        Task<bool> ContentExistsAsync(int id);
     }
 }

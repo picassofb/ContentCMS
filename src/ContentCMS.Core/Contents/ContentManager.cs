@@ -45,5 +45,10 @@ namespace ContentCMS.Contents
         {
             await _contentRepository.UpdateAsync(content);
         }
+
+        public async Task<bool> ContentExistsAsync(int id)
+        {
+            return await _contentRepository.CountAsync(x => x.Id == id) > 0;
+        }
     }
 }

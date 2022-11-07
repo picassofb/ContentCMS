@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using ContentCMS.Contents.Dtos;
 using Abp.UI;
-using Abp.Runtime.Session;
+using Abp.Authorization;
 
 namespace ContentCMS.Contents
 {
+    [AbpAuthorize]
     public class ContentAppService : ContentCMSAppServiceBase, IContentAppService
     {
         private readonly IContentManager _eventManager;
@@ -23,7 +24,7 @@ namespace ContentCMS.Contents
 
             if (content == null)
             {
-                throw new UserFriendlyException("Content does not exists!");
+                throw new UserFriendlyException($"Content with Id {id} does not exists!");
             }
 
             return ObjectMapper.Map<ContentDetailDto>(content);
@@ -32,13 +33,18 @@ namespace ContentCMS.Contents
         public async Task<ContentDetailDto> InsertOrUpdateCMSContent(UpsertContentInput input)
         {
 
-            var existingEntity = await _eventManager.ContentExistsAsync(input.Id);
+            var contentExists = await _eventManager.ContentExistsAsync(input.Id);
 
-            var content = !existingEntity
+            if (!contentExists && input.Id > 0)
+            {
+                throw new UserFriendlyException($"Content with Id {input.Id} does not exists!");
+            }
+
+            var content = !contentExists
                 ? Content.Create(input.PageName, input.PageContent)
                 : Content.Update(input.Id, input.PageName, input.PageContent);
 
-            if (!existingEntity)
+            if (!contentExists)
             {
                 var newId = await _eventManager.CreateAsync(content);
                 content.SetId(newId);

@@ -205,6 +205,179 @@ export class ConfigurationServiceProxy {
 }
 
 @Injectable()
+export class ContentServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ? baseUrl : "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return Success
+     */
+    getCMSContent(id: number | null | undefined): Observable<ContentDetailDto> {
+        let url_ = this.baseUrl + "/api/services/app/Content/GetCMSContent?";
+        if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCMSContent(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCMSContent(<any>response_);
+                } catch (e) {
+                    return <Observable<ContentDetailDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ContentDetailDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetCMSContent(response: HttpResponseBase): Observable<ContentDetailDto> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContentDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ContentDetailDto>(<any>null);
+    }
+
+    /**
+     * @param input (optional) 
+     * @return Success
+     */
+    insertOrUpdateCMSContent(input: UpsertContentInput | null | undefined): Observable<ContentDetailDto> {
+        let url_ = this.baseUrl + "/api/services/app/Content/InsertOrUpdateCMSContent";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(input);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processInsertOrUpdateCMSContent(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processInsertOrUpdateCMSContent(<any>response_);
+                } catch (e) {
+                    return <Observable<ContentDetailDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ContentDetailDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processInsertOrUpdateCMSContent(response: HttpResponseBase): Observable<ContentDetailDto> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContentDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ContentDetailDto>(<any>null);
+    }
+
+    /**
+     * @return Success
+     */
+    getAll(): Observable<ListResultDtoOfContentDetailDto> {
+        let url_ = this.baseUrl + "/api/services/app/Content/GetAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(<any>response_);
+                } catch (e) {
+                    return <Observable<ListResultDtoOfContentDetailDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ListResultDtoOfContentDetailDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<ListResultDtoOfContentDetailDto> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDtoOfContentDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ListResultDtoOfContentDetailDto>(<any>null);
+    }
+}
+
+@Injectable()
 export class RoleServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -1927,6 +2100,159 @@ export class ChangeUiThemeInput implements IChangeUiThemeInput {
 
 export interface IChangeUiThemeInput {
     theme: string;
+}
+
+export class ContentDetailDto implements IContentDetailDto {
+    id: number | undefined;
+    pageName: string | undefined;
+    pageContent: string | undefined;
+
+    constructor(data?: IContentDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.pageName = data["pageName"];
+            this.pageContent = data["pageContent"];
+        }
+    }
+
+    static fromJS(data: any): ContentDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContentDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["pageName"] = this.pageName;
+        data["pageContent"] = this.pageContent;
+        return data; 
+    }
+
+    clone(): ContentDetailDto {
+        const json = this.toJSON();
+        let result = new ContentDetailDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IContentDetailDto {
+    id: number | undefined;
+    pageName: string | undefined;
+    pageContent: string | undefined;
+}
+
+export class UpsertContentInput implements IUpsertContentInput {
+    id: number;
+    pageName: string;
+    pageContent: string;
+
+    constructor(data?: IUpsertContentInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.pageName = data["pageName"];
+            this.pageContent = data["pageContent"];
+        }
+    }
+
+    static fromJS(data: any): UpsertContentInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpsertContentInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["pageName"] = this.pageName;
+        data["pageContent"] = this.pageContent;
+        return data; 
+    }
+
+    clone(): UpsertContentInput {
+        const json = this.toJSON();
+        let result = new UpsertContentInput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpsertContentInput {
+    id: number;
+    pageName: string;
+    pageContent: string;
+}
+
+export class ListResultDtoOfContentDetailDto implements IListResultDtoOfContentDetailDto {
+    items: ContentDetailDto[] | undefined;
+
+    constructor(data?: IListResultDtoOfContentDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            if (Array.isArray(data["items"])) {
+                this.items = [] as any;
+                for (let item of data["items"])
+                    this.items.push(ContentDetailDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDtoOfContentDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDtoOfContentDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data; 
+    }
+
+    clone(): ListResultDtoOfContentDetailDto {
+        const json = this.toJSON();
+        let result = new ListResultDtoOfContentDetailDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDtoOfContentDetailDto {
+    items: ContentDetailDto[] | undefined;
 }
 
 export class CreateRoleDto implements ICreateRoleDto {

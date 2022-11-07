@@ -1,14 +1,15 @@
-import { Component, Injector, ViewEncapsulation } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 import { AppComponentBase } from '@shared/app-component-base';
 import { MenuItem } from '@shared/layout/menu-item';
+import { MenuListReactiveService } from '@shared/reactive/menu-list.reactive.service';
+import { ContentServiceProxy } from '@shared/service-proxies/service-proxies';
 
 @Component({
     templateUrl: './sidebar-nav.component.html',
-    selector: 'sidebar-nav',
-    encapsulation: ViewEncapsulation.None
+    selector: 'sidebar-nav'
 })
-export class SideBarNavComponent extends AppComponentBase {
-
+export class SideBarNavComponent extends AppComponentBase implements OnInit {
+    contentListMenu: MenuItem[] = [];
     menuItems: MenuItem[] = [
         new MenuItem(this.l('HomePage'), '', 'home', '/app/home'),
 
@@ -32,13 +33,36 @@ export class SideBarNavComponent extends AppComponentBase {
                 new MenuItem('Faq', '', '', 'https://aspnetzero.com/Faq?ref=abptmpl'),
                 new MenuItem('Documents', '', '', 'https://aspnetzero.com/Documents?ref=abptmpl')
             ])
-        ])
+        ]),
+
+        new MenuItem('Content Manager', '', 'edit', '/app/manage-content')
     ];
 
     constructor(
-        injector: Injector
+        injector: Injector,
+        private _contentService: ContentServiceProxy,
+        private menuListReactiveService: MenuListReactiveService
     ) {
         super(injector);
+    }
+
+    ngOnInit(): void {
+        this._contentService
+        .getAll()
+        .subscribe(contents => {
+            contents.items.map((item) => {
+                this.menuItems.push(
+                    new MenuItem(`${item.pageName}`, '', "chevron_right", `/app/content/${item.id}`)
+                );
+            });
+        });
+
+        this.menuListReactiveService.menuItem
+        .subscribe(newItem => {
+            if(newItem) {
+                this.menuItems.push(newItem);
+            }
+        });
     }
 
     showMenuItem(menuItem): boolean {

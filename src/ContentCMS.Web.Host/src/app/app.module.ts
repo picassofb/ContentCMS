@@ -37,6 +37,10 @@ import { CreateUserDialogComponent } from '@app/users/create-user/create-user-di
 import { EditUserDialogComponent } from '@app/users/edit-user/edit-user-dialog.component';
 import { ChangePasswordComponent } from './users/change-password/change-password.component';
 import { ResetPasswordDialogComponent } from './users/reset-password/reset-password.component';
+import { ManageContentComponent } from './manage-content/manage-content.component';
+import { AngularEditorModule } from '@kolkov/angular-editor';
+import { ContentComponent } from './content/content.component';
+import { MenuListReactiveService } from '@shared/reactive/menu-list.reactive.service';
 
 @NgModule({
   declarations: [
@@ -62,7 +66,10 @@ import { ResetPasswordDialogComponent } from './users/reset-password/reset-passw
     CreateUserDialogComponent,
     EditUserDialogComponent,
     ChangePasswordComponent,
-    ResetPasswordDialogComponent
+    ResetPasswordDialogComponent,
+    //CMS Content
+    ManageContentComponent,
+    ContentComponent
   ],
   imports: [
     CommonModule,
@@ -75,9 +82,10 @@ import { ResetPasswordDialogComponent } from './users/reset-password/reset-passw
     AppRoutingModule,
     ServiceProxyModule,
     SharedModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    AngularEditorModule 
   ],
-  providers: [],
+  providers: [MenuListReactiveService],
   entryComponents: [
     // tenants
     CreateTenantDialogComponent,

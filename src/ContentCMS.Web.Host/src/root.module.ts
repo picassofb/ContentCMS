@@ -23,6 +23,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { GestureConfig } from '@angular/material';
 
 import * as _ from 'lodash';
+import { ContentComponent } from './app/content/content.component';
 
 export function appInitializerFactory(injector: Injector,
     platformLocation: PlatformLocation) {

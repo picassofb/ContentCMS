@@ -1,7 +1,6 @@
 import { Component, Injector, OnInit } from '@angular/core';
 import { AppComponentBase } from '@shared/app-component-base';
 import { finalize } from 'rxjs/operators';
-import * as _ from 'lodash';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { 
   ContentServiceProxy, 
@@ -78,8 +77,9 @@ export class ManageContentComponent extends AppComponentBase implements OnInit {
   private updateContentItem(updatedItem: ContentDetailDto) {
     const index = this.contentList.findIndex(x => x.id === updatedItem.id);
 
-    if(index)
+    if (index >= 0) {
       this.contentList[index] = updatedItem;
+    }
   }
 
   private addContentItem(newItem: ContentDetailDto) {
